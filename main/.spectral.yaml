@@ -1,0 +1,56 @@
+extends: ["spectral:oas", "spectral:asyncapi", "@stoplight/spectral-documentation"]
+
+rules:
+  operation-summary:
+    description: "All operations must have a summary"
+    severity: error
+    given: "$.paths[*][*]"
+    then:
+      field: summary
+      function: truthy
+
+  operation-description:
+    description: "All operations must have a description"
+    severity: error
+    given: "$.paths[*][*]"
+    then:
+      field: description
+      function: truthy
+
+  pagination-fields:
+    description: "Paginated responses must include totalCount, page, and pageSize"
+    severity: warn
+    given: "$.paths[*][*].responses[200].content['application/json'].example"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          required: ["totalCount", "page", "pageSize"]
+
+  error-format:
+    description: "4xx and 5xx responses must include an 'error' object"
+    severity: warn
+    given: "$.paths[*][*].responses[?(@key =~ /4\\d\\d|5\\d\\d/)].content['application/json'].example"
+    then:
+      field: error
+      function: truthy
+
+  naming-path-segments:
+    description: "Path segments should be lowerCamelCase"
+    severity: warn
+    given: "$.paths"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^/([a-z]+(?:[A-Z][a-z0-9]*)*/?)*$"
+
+  response-status-codes:
+    description: "Only approved status codes should be used"
+    severity: error
+    given: "$.paths[*][*].responses"
+    then:
+      field: "@key"
+      function: enumeration
+      functionOptions:
+        values: ["200", "201", "204", "400", "401", "403", "404", "409", "429", "500"]

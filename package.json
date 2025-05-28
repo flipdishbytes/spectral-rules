@@ -1,0 +1,23 @@
+{
+  "name": "@flipdish/spectral-rules",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flipdishbytes/spectral-rules.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/flipdishbytes/spectral-rules/issues"
+  },
+  "homepage": "https://github.com/flipdishbytes/spectral-rules#readme",
+  "description": "Common Spectral rules for Flipdish",
+  "exports": {
+    ".": "./.spectral.yaml"
+  }
+}
