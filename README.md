@@ -5,11 +5,12 @@ This repo contains the custom [Spectral](https://meta.stoplight.io/docs/spectral
 ## ✅ Rules Included
 
 - Required descriptions and summaries
-- Only production servers
-- Description length + trailing periods
-- Error object validation
+- Only production servers (api.flipdish.co)
+- Error object validation (⚠️ Currently disabled due to issues when running it)
 - Pagination schema checks
 - camelCase paths
+- Valid contact email
+- Approved status codes
 - Tag sorting
 
 

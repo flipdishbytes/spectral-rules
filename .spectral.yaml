@@ -1,4 +1,4 @@
-extends: ["spectral:oas", "spectral:asyncapi", "@stoplight/spectral-documentation"]
+extends: ["spectral:oas", "spectral:asyncapi"]
 
 rules:
   operation-summary:
@@ -64,8 +64,8 @@ rules:
       function: enumeration
       functionOptions:
         values: ["200", "201", "204", "400", "401", "403", "404", "409", "429", "500"]
-
-   valid-contact-email:
+  
+  valid-contact-email:
     description: "The contact email must be help@flipdish.com"
     severity: error
     given: "$.info.contact.email"
