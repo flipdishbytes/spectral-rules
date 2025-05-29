@@ -4,8 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint:openapi:error": "NODE_NO_WARNINGS=1 spectral lint --ruleset .spectral.yaml --fail-severity error",
-    "lint:openapi:warn": "NODE_NO_WARNINGS=1 spectral lint --ruleset .spectral.yaml --fail-severity warn"
+    "lint:openapi:error": "NODE_NO_WARNINGS=1 spectral lint openapi-dummy.json --ruleset .spectral.yaml --fail-severity error",
+    "lint:openapi:warn": "NODE_NO_WARNINGS=1 spectral lint openapi-dummy.json --ruleset .spectral.yaml --fail-severity warn"
   },
   "repository": {
     "type": "git",

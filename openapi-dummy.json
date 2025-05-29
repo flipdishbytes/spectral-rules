@@ -16,7 +16,7 @@
     "/hello": {
       "get": {
         "summary": "Returns a greeting",
-        "description": "Returns a greeting",
+        "description": "Returns a greeting. ⚠️ **Beta Notice:** This endpoint is currently in beta and may change or be deprecated at any time without notice.",
         "responses": {
           "200": {
             "description": "A successful response"

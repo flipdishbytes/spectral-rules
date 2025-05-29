@@ -74,3 +74,13 @@ rules:
       functionOptions:
         match: "^help@flipdish\\.com$"
 
+  beta-description:
+    description: "Beta endpoints must include a warning in the description"
+    severity: error
+    given: "$.paths[*][get,post,put,delete]"
+    then:
+      field: description
+      function: pattern
+      functionOptions:
+        match: ".*Beta.*"
+
