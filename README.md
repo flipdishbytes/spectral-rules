@@ -32,3 +32,29 @@ This repo contains the custom [Spectral](https://meta.stoplight.io/docs/spectral
 curl -O https://raw.githubusercontent.com/flipdishbytes/spectral-rules/main/.spectral.yaml
 spectral lint openapi.yaml --ruleset .spectral.yaml
 ```
+
+## 🔄 Extending and Overriding Rules
+
+This ruleset can be extended or overridden in your project by creating a local `.spectral.yaml` file that extends this one. For example:
+
+```yaml
+extends: https://raw.githubusercontent.com/flipdishbytes/spectral-rules/main/.spectral.yaml
+
+rules:
+  # Override an existing rule
+  operation-summary:
+    severity: warn  # Change severity from error to warn
+
+  # Add a new rule
+  my-custom-rule:
+    description: "My custom rule"
+    severity: error
+    given: "$.paths[*][*]"
+    then:
+      field: summary
+      function: pattern
+      functionOptions:
+        match: "^[A-Z]"
+```
+
+For more details on extending rulesets, see the [Spectral documentation](https://docs.stoplight.io/docs/spectral/83527ef2dd8c0-extending-rulesets).
