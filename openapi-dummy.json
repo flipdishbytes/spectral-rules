@@ -1,0 +1,28 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Dummy API",
+    "version": "1.0.0",
+    "contact": {
+      "email": "help@flipdish.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.flipdish.co"
+    }
+  ],
+  "paths": {
+    "/hello": {
+      "get": {
+        "summary": "Returns a greeting",
+        "description": "Returns a greeting",
+        "responses": {
+          "200": {
+            "description": "A successful response"
+          }
+        }
+      }
+    }
+  }
+} 
