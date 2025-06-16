@@ -44,7 +44,7 @@ rules:
     then:
       function: pattern
       functionOptions:
-        match: "^https://api\\.flipdish\\.co($|/)"
+        match: "^https://(api\\.flipdish\\.co|api\\.portal\\.flipdish\\.com)($|/)"
 
   naming-path-segments:
     description: "Path segments should be lowerCamelCase"
