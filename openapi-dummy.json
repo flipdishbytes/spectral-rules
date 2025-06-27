@@ -3,10 +3,17 @@
   "info": {
     "title": "Dummy API",
     "version": "1.0.0",
+    "description": "A dummy API for testing Spectral rules.",
     "contact": {
       "email": "help@flipdish.com"
     }
   },
+  "tags": [
+    {
+      "name": "Greeting",
+      "description": "Operations related to greetings"
+    }
+  ],
   "servers": [
     {
       "url": "https://api.flipdish.co"
@@ -16,10 +23,77 @@
     "/hello": {
       "get": {
         "summary": "Returns a greeting",
-        "description": "Returns a greeting. ⚠️ **Beta Notice:** This endpoint is currently in beta and may change or be deprecated at any time without notice.",
+        "description": "Returns a greeting. ⚠️ **Beta Notice:** This endpoint is currently in beta and may change or be deprecated at any time without notice. This operation is idempotent.",
+        "operationId": "getGreeting",
+        "tags": ["Greeting"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
-            "description": "A successful response"
+            "description": "A successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data"],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": { "type": "string" }
+                      },
+                      "required": ["message"]
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "message": "Hello, world!"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid input provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["error"],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": ["message", "code"],
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Localized error message explaining what went wrong"
+                        },
+                        "code": {
+                          "type": "string",
+                          "description": "Unique identifier for the specific error type"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "error": {
+                    "message": "Invalid request parameters provided",
+                    "code": "invalid_request_parameters"
+                  }
+                }
+              }
+            }
           }
         }
       }

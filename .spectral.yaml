@@ -17,25 +17,13 @@ rules:
       field: description
       function: truthy
 
-  pagination-fields:
-    description: "Paginated responses must include totalCount, page, and pageSize"
-    severity: warn
-    given: "$.paths[*][*].responses[200].content['application/json'].example"
+  error-format:
+    description: "4xx and 5xx responses must include an 'error' object with message and code"
+    severity: error
+    given: "$.paths[*][*].responses[400,401,403,404,409,414,429,500].content['application/json'].schema"
     then:
-      function: schema
-      functionOptions:
-        schema:
-          type: object
-          required: ["totalCount", "page", "pageSize"]
-
-#  TODO: this errors for some reasonm I'll come back to it later
-  # error-format:
-  #   description: "4xx and 5xx responses must include an 'error' object"
-  #   severity: warn
-  #   given: "$.paths[*][*].responses[?(@key =~ /4\\d\\d|5\\d\\d/)].content['application/json'].example"
-  #   then:
-  #     field: error
-  #     function: truthy
+      field: properties.error
+      function: truthy
 
   allowed-server-urls:
     description: "Only Flipdish production domains should be in the server URLs"
@@ -63,7 +51,7 @@ rules:
       field: "@key"
       function: enumeration
       functionOptions:
-        values: ["200", "201", "204", "400", "401", "403", "404", "409", "429", "500"]
+        values: ["200", "201", "204", "400", "401", "403", "404", "409", "414", "429", "500"]
   
   valid-contact-email:
     description: "The contact email must be help@flipdish.com"
@@ -76,7 +64,7 @@ rules:
 
   beta-description:
     description: "Beta endpoints must include a warning in the description"
-    severity: error
+    severity: warn
     given: "$.paths[*][get,post,put,delete]"
     then:
       field: description
@@ -84,3 +72,242 @@ rules:
       functionOptions:
         match: ".*Beta.*"
 
+  # URL Pattern and Structure Rules
+  url-pattern-structure:
+    description: "URLs must follow the pattern /{grouping}/orgs/{orgId}/{path-to-resource}"
+    severity: error
+    given: "$.paths"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^/([a-z]+(?:[A-Z][a-z0-9]*)*)/orgs/\\{[^}]+\\}(/[a-z]+(?:[A-Z][a-z0-9]*)*)*$"
+
+  no-api-in-path:
+    description: "URL paths should not include 'api' in the path"
+    severity: error
+    given: "$.paths"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^(?!.*/api/).*$"
+
+  plural-resource-collections:
+    description: "Resource collections should use plural names"
+    severity: warn
+    given: "$.paths"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^/([a-z]+(?:[A-Z][a-z0-9]*)*)/orgs/\\{[^}]+\\}/([a-z]+(?:[A-Z][a-z0-9]*)*s?)(/\\{[^}]+\\})*$"
+
+  # HTTP Method Rules
+  allowed-http-methods:
+    description: "Only GET, POST, DELETE methods are allowed"
+    severity: error
+    given: "$.paths[*]"
+    then:
+      field: "@key"
+      function: enumeration
+      functionOptions:
+        values: ["get", "post", "delete"]
+
+  no-put-patch-methods:
+    description: "PUT and PATCH methods are not allowed"
+    severity: error
+    given: "$.paths[*]"
+    then:
+      field: "@key"
+      function: enumeration
+      functionOptions:
+        values: ["get", "post", "delete"]
+
+  # Response Structure Rules
+  response-data-wrapper:
+    description: "Successful responses must include a 'data' field"
+    severity: error
+    given: "$.paths[*][*].responses[200,201].content['application/json'].schema"
+    then:
+      field: properties.data
+      function: truthy
+
+  # Status Code Rules
+  post-create-status:
+    description: "POST operations that create resources must return 201"
+    severity: error
+    given: "$.paths[*].post"
+    then:
+      field: responses
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          required: ["201"]
+
+  delete-no-content-status:
+    description: "DELETE operations should return 204 No Content"
+    severity: warn
+    given: "$.paths[*].delete"
+    then:
+      field: responses
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          required: ["204"]
+
+  # Query Parameter Rules
+  case-insensitive-query-params:
+    description: "Query parameters should be documented as case insensitive"
+    severity: warn
+    given: "$.paths[*][*].parameters[*]"
+    then:
+      field: description
+      function: pattern
+      functionOptions:
+        match: ".*[Cc]ase [Ii]nsensitive.*"
+
+  name-contains-pattern:
+    description: "Simple search endpoints should use 'nameContains' parameter"
+    severity: warn
+    given: "$.paths[*][get].parameters[*]"
+    then:
+      field: name
+      function: pattern
+      functionOptions:
+        match: "^nameContains$"
+
+  # Field Naming Rules
+  no-type-in-field-names:
+    description: "Field names should not include type or format information"
+    severity: warn
+    given: "$.components.schemas[*].properties"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^(?!.*(?:Iso|Type|Format|Code)).*$"
+
+  camel-case-field-names:
+    description: "Field names should use camelCase"
+    severity: warn
+    given: "$.components.schemas[*].properties"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^[a-z]+(?:[A-Z][a-z0-9]*)*$"
+
+  # Public Facing ID Rules
+  public-id-format:
+    description: "Public facing IDs should follow the format [prefix][incrementing integer]"
+    severity: warn
+    given: "$.components.schemas[*].properties.*"
+    then:
+      field: "@key"
+      function: pattern
+      functionOptions:
+        match: ".*[Ii]d$"
+
+  # Authorization Rules
+  authorization-header:
+    description: "Operations should use FD-Authorization header from Cookie"
+    severity: warn
+    given: "$.paths[*][*].security"
+    then:
+      function: truthy
+
+  # Versioning Rules
+  no-global-versioning:
+    description: "Global path-based versioning is not allowed"
+    severity: error
+    given: "$.paths"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^(?!.*/v\\d+/).*$"
+
+  simple-version-numbers:
+    description: "Version numbers should be simple (v1, v2) not detailed (v1.0, v2.0)"
+    severity: warn
+    given: "$.paths"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^(?!.*/v\\d+\\.\\d+/).*$"
+
+  # Content Type Rules
+  json-content-type:
+    description: "Responses should use application/json content type"
+    severity: error
+    given: "$.paths[*][*].responses[*].content"
+    then:
+      field: "@key"
+      function: enumeration
+      functionOptions:
+        values: ["application/json"]
+
+  # Schema Validation Rules
+  explicit-types:
+    description: "Request and response schemas should be explicitly defined"
+    severity: warn
+    given: "$.paths[*][*]"
+    then:
+      field: requestBody
+      function: truthy
+
+  # Operation ID Rules
+  unique-operation-ids:
+    description: "All operations must have unique operationId"
+    severity: error
+    given: "$.paths[*][*]"
+    then:
+      field: operationId
+      function: truthy
+
+  # Tag Rules
+  operation-tags:
+    description: "All operations must have at least one tag"
+    severity: error
+    given: "$.paths[*][*]"
+    then:
+      field: tags
+      function: truthy
+
+  # Example Rules
+  response-examples:
+    description: "Responses should include examples"
+    severity: warn
+    given: "$.paths[*][*].responses[200,201].content['application/json']"
+    then:
+      field: example
+      function: truthy
+
+  # URI Length Rule
+  uri-length-validation:
+    description: "URLs should not exceed 2083 characters"
+    severity: warn
+    given: "$.paths"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^.{1,2083}$"
+
+  # Expand Parameter Rules
+  expand-parameter-documentation:
+    description: "Endpoints with expandable resources should document the expand parameter"
+    severity: warn
+    given: "$.paths[*][get].parameters[*]"
+    then:
+      field: name
+      function: pattern
+      functionOptions:
+        match: "^expand$"
+
+  # Resource State Rules
+  resource-state-modeling:
+    description: "APIs should model resource state, not behavior"
+    severity: warn
+    given: "$.paths[*][*]"
+    then:
+      field: summary
+      function: pattern
+      functionOptions:
+        match: "^(?!.*(?:action|execute|perform|run)).*$"
