@@ -6,7 +6,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint:openapi:error": "NODE_NO_WARNINGS=1 spectral lint openapi-dummy.json --ruleset .spectral.yaml --fail-severity error",
     "lint:openapi:warn": "NODE_NO_WARNINGS=1 spectral lint openapi-dummy.json --ruleset .spectral.yaml --fail-severity warn",
-    "preinstall": "node preinstall.js"
   },
   "repository": {
     "type": "git",
